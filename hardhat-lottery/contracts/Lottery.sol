@@ -8,17 +8,19 @@
 
 pragma solidity ^0.8.7;
 
+import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
+
 error Lottery__NotEnoughETHEntered();
 
-contract Lottery {
+contract Lottery is VRFConsumerBaseV2 {
     /**State Variables */
     uint256 private immutable i_entranceFee;
     address payable[] private s_players;
 
     /* Events */
-    event RaffleEnter(address indexed player)
+    event RaffleEnter(address indexed player);
 
-    constructor(uint256 entranceFee) {
+    constructor(address vrfCoordinatorV2, uint256 entranceFee) VRFConsumerBaseV2(vrfCoordinatorV2) {
         i_entranceFee = entranceFee;
     }
 
@@ -30,13 +32,20 @@ contract Lottery {
         s_players.push(payable(msg.sender));
         // Emmit an event when we update a dynamic array or mapping
         // Name events with the function name reversed
-        emit RaffleEnter(msg.sender)
+        emit RaffleEnter(msg.sender);
     }
 
-    // Pick Random Winner
-    function pickRandomWinner() public {}
+    // Pick Random Winner - function called by chainlink keepers network
+    function requestRandomWinner() external {
+        // Request the random number
+        // Do something with it
+    }
+
+    // fulfil random numbers
+    function fulfilRandomWords() internal {}
 
     // Users can call the function to get entrance fee
+    // View / Pure Functions
     function getEntranceFee() public view returns (uint256) {
         return i_entranceFee;
     }
